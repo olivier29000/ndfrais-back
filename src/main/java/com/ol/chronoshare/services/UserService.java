@@ -5,6 +5,8 @@ import com.ol.chronoshare.model.DTO.UserCreationDTO;
 import com.ol.chronoshare.model.User;
 import com.ol.chronoshare.model.exceptions.ChronoshareException;
 import com.ol.chronoshare.repositories.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class UserService {
@@ -70,4 +73,22 @@ public class UserService {
 
 
     }
+
+    public UserConnectedDTO getUserConnectedDTO(HttpServletRequest request) throws Exception {
+        String email = jwtAuthentificationService.getEmailFromCookie(request);
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if(optionalUser.isPresent()){
+            User user = optionalUser.get();
+            return convertToUserConnected(user);
+        }
+        throw new ChronoshareException("aucun user connu");
+    }
+    private UserConnectedDTO convertToUserConnected(User user) throws Exception{
+        UserConnectedDTO userConnectedDTO = new UserConnectedDTO(
+                user.getPseudo(),
+                user.getEmail()
+        );
+        return userConnectedDTO;
+    }
+
 }

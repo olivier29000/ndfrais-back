@@ -1,7 +1,10 @@
 package com.ol.chronoshare.controllers;
+import com.ol.chronoshare.model.DTO.UserConnectedDTO;
 import com.ol.chronoshare.model.DTO.UserCreationDTO;
 import com.ol.chronoshare.services.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +19,12 @@ public class UserController {
     public String hello() throws Exception {
 
         return "hello";
+    }
+
+    @GetMapping("/verifAuthenticate")
+    public ResponseEntity<UserConnectedDTO> verifAuthenticate(HttpServletRequest request) throws Exception {
+        UserConnectedDTO userConnected = userService.getUserConnectedDTO(request);
+        return ResponseEntity.ok(userConnected);
     }
 
     @PostMapping("/creation-compte")

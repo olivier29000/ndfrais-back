@@ -2,6 +2,8 @@ package com.ol.chronoshare.services;
 
 import com.ol.chronoshare.JwtTokenUtil;
 import com.ol.chronoshare.model.User;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
@@ -10,6 +12,9 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class JwtAuthentificationService {
@@ -54,6 +59,27 @@ public class JwtAuthentificationService {
             throw new Exception("USER_DISABLED", e);
         }
 
+    }
+
+    public String getEmailFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+
+            String token = Stream.of(cookies)
+                    .filter(cookie -> cookie.getName().equals(TOKEN_COOKIE))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+
+            if (token != null) {
+                String email = jwtTokenUtil.getUsernameFromToken(token);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                if ( userDetails != null && jwtTokenUtil.validateToken(token, userDetails)) {
+                    return email;
+                }
+            }
+        }
+        return null;
     }
 //
 //    private void authenticate(String username, String password) throws Exception {
