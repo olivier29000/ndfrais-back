@@ -15,11 +15,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/hello")
-    public String hello() throws Exception {
-
-        return "hello";
-    }
 
     @GetMapping("/verifAuthenticate")
     public ResponseEntity<UserConnectedDTO> verifAuthenticate(HttpServletRequest request) throws Exception {
