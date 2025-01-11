@@ -1,7 +1,9 @@
 package com.ol.chronoshare.services;
 
+import com.ol.chronoshare.model.DTO.ChangementMotDePasseDTO;
 import com.ol.chronoshare.model.DTO.UserConnectedDTO;
 import com.ol.chronoshare.model.DTO.UserCreationDTO;
+import com.ol.chronoshare.model.TokenModifMotDePasse;
 import com.ol.chronoshare.model.User;
 import com.ol.chronoshare.model.exceptions.ChronoshareException;
 import com.ol.chronoshare.repositories.UserRepository;
@@ -15,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -30,6 +33,31 @@ public class UserService {
     private JwtUserDetailsService userDetailsService;
     @Autowired
     private JwtAuthentificationService jwtAuthentificationService;
+    @Autowired
+    private TokenModifMotDePasseService tokenModifMotDePasseService;
+    @Autowired
+    private EmailService emailService;
+
+    public ResponseEntity<?> mailOubliMotDePasse(String email){
+        Optional<User> optUser = userRepository.findByEmail(email);
+        if(optUser.isEmpty()){
+            return ResponseEntity.ok().build();
+        }
+        User user = optUser.get();
+        TokenModifMotDePasse tokenModifMotDePasse = tokenModifMotDePasseService.save(new TokenModifMotDePasse(
+                user,
+                UtilsService.generateRandomString(10),
+                LocalDateTime.now().plusHours(2)
+        )) ;
+        try {
+            emailService.sendEmailOubliMotDePasse(tokenModifMotDePasse);
+        }catch (Exception e){
+            System.out.println("L'email pour " + tokenModifMotDePasse.getUser().getEmail() + " n'a pas pu être envoyé");
+        }
+
+
+        return ResponseEntity.ok().build();
+    }
 
     public ResponseEntity<UserConnectedDTO> login(UserCreationDTO userCreationDTO) throws Exception {
         // Charger les détails de l'utilisateur par le nom d'utilisateur
@@ -83,6 +111,31 @@ public class UserService {
         }
         throw new ChronoshareException("aucun user connu");
     }
+
+    public User enableTokenConfirmation(User user) throws Exception {
+        user.setEnabled(true);
+        user.setTokenEnabled(null);
+        return userRepository.save(user);
+    };
+
+    public Optional<User> findUserByTokenEnabled(String tokenEnabled) {
+        return userRepository.findUserByTokenEnabled(tokenEnabled);
+
+    };
+
+    public ResponseEntity<?> changementMotDePasse(ChangementMotDePasseDTO changementMotDePasseDTO){
+        Optional<TokenModifMotDePasse> optToken = tokenModifMotDePasseService.findByToken(changementMotDePasseDTO.getToken());
+        if(optToken.isEmpty()){
+            throw new ChronoshareException("le token de changement de mot de passe est inconnu");
+        }
+        TokenModifMotDePasse tokenModifMotDePasse = optToken.get();
+
+        User user = tokenModifMotDePasse.getUser();
+        user.setPassword(bcrypt.encode(changementMotDePasseDTO.getPassword()));
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
+    }
+
     private UserConnectedDTO convertToUserConnected(User user) throws Exception{
         UserConnectedDTO userConnectedDTO = new UserConnectedDTO(
                 user.getPseudo(),

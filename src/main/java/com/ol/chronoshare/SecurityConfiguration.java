@@ -51,6 +51,10 @@ public class SecurityConfiguration {
         httpSecurity.authorizeRequests(auth -> auth
                         .requestMatchers(new AntPathRequestMatcher("/back/user/creation-compte")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/back/user/login")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/back/user/confirm-email/*")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/back/user/oubli-mot-de-passe/*")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/back/user/changement-mot-de-passe")).permitAll()
+
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .formLogin(formLogin -> formLogin.disable())
