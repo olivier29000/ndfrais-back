@@ -19,10 +19,9 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     @Column(unique = true)
     private String email;
-    private String pseudo;
     private String password;
     private boolean enabled;
     private String tokenEnabled;
@@ -37,7 +36,6 @@ public class User {
     public User(String email, String password) {
         this.email = email;
         this.password = password;
-        this.pseudo = email;
         this.enabled = false;
         this.dateCreation = LocalDateTime.now();
         this.roleList = new ArrayList<>();

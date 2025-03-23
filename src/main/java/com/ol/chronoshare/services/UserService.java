@@ -38,6 +38,17 @@ public class UserService {
     @Autowired
     private EmailService emailService;
 
+    public User getUserFromCookie(HttpServletRequest request) throws Exception {
+        String email = jwtAuthentificationService.getEmailFromCookie(request);
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if(optionalUser.isPresent()){
+            User user = optionalUser.get();
+            // userRepository.updateLastConnexion(user.getId(), LocalDateTime.now());
+            return user;
+        }
+        throw new ChronoshareException("aucun user connu");
+    }
+
     public ResponseEntity<?> mailOubliMotDePasse(String email){
         Optional<User> optUser = userRepository.findByEmail(email);
         if(optUser.isEmpty()){
@@ -71,7 +82,7 @@ public class UserService {
             ResponseCookie tokenCookie = jwtAuthentificationService.createAuthenticationToken(userDetails.getUsername(), userCreationDTO.getPassword());
             Optional<User>  optUser = userRepository.findByEmail(userDetails.getUsername());
             if(optUser.isPresent()){
-                UserConnectedDTO userConnected = new UserConnectedDTO(optUser.get().getPseudo(), optUser.get().getEmail());
+                UserConnectedDTO userConnected = new UserConnectedDTO(optUser.get().getEmail(), optUser.get().getEmail());
                 return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, tokenCookie.toString()).body(userConnected);
             }else {
                 throw new ChronoshareException("Erreur anormale pour " + userCreationDTO.getEmail());
@@ -96,9 +107,6 @@ public class UserService {
         User user = userRepository.save(new User(userCreationDTO.getEmail(),bcrypt.encode(userCreationDTO.getPassword()))) ;
 
        // emailService.sendEmailCreationCompte(user.getEmail(),  "activation de votre compte", "www.pourdubeurre.bzh/back/users/confirm-email/" +  user.getTokenConfirmation());
-
-
-
 
     }
 
@@ -138,7 +146,7 @@ public class UserService {
 
     private UserConnectedDTO convertToUserConnected(User user) throws Exception{
         UserConnectedDTO userConnectedDTO = new UserConnectedDTO(
-                user.getPseudo(),
+                user.getEmail(),
                 user.getEmail()
         );
         return userConnectedDTO;
