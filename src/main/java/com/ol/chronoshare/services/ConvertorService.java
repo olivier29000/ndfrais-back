@@ -2,8 +2,11 @@ package com.ol.chronoshare.services;
 
 import com.ol.chronoshare.model.DTO.ImageDTO;
 import com.ol.chronoshare.model.DTO.TicketDTO;
+import com.ol.chronoshare.model.DTO.TrajetDTO;
 import com.ol.chronoshare.model.Image;
+import com.ol.chronoshare.model.Position;
 import com.ol.chronoshare.model.Ticket;
+import com.ol.chronoshare.model.Trajet;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +33,26 @@ public class ConvertorService {
         // Convertir en base64
         String base64Image = Base64.getEncoder().encodeToString(imageBytes);
         return new ImageDTO(image.getId(), image.getNom(), base64Image);
+    }
+
+    public TrajetDTO convertToTrajetDTO(Trajet trajet) {
+        return new TrajetDTO(
+                trajet.getId(),
+                trajet.getTitre(),
+                trajet.getNbkm(),
+                trajet.getDateTrajet(),
+                trajet.getDateCreation(),
+                new Position(
+                        trajet.getDisplayedDepart(),
+                        trajet.getLatDepart(),
+                        trajet.getLonDepart()
+                ),
+                new Position(
+                        trajet.getDisplayedArrive(),
+                        trajet.getLatArrive(),
+                        trajet.getLonArrive()
+                )
+        );
     }
 
     public TicketDTO convertToTicketDTO(Ticket ticket) {
