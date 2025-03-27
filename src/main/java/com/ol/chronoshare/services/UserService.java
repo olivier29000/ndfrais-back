@@ -106,8 +106,11 @@ public class UserService {
 
         User user = userRepository.save(new User(userCreationDTO.getEmail(),bcrypt.encode(userCreationDTO.getPassword()))) ;
 
-       // emailService.sendEmailCreationCompte(user.getEmail(),  "activation de votre compte", "www.pourdubeurre.bzh/back/users/confirm-email/" +  user.getTokenConfirmation());
-
+       emailService.sendEmailCreationCompte(user.getEmail(),  "activation de votre compte", "www.ndfrais.pro/back/user/confirm-email/" +  user.getTokenEnabled());
+        emailService.sendEmail("lasbleis.olivier@yahoo.fr",
+                user.getEmail() + " vient de créer un compte sur ndfrais.pro",
+                "Nouvelle inscription",
+                user.getEmail() + " vient de créer un compte sur ndfrais.pro");
     }
 
     public UserConnectedDTO getUserConnectedDTO(HttpServletRequest request) throws Exception {
