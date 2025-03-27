@@ -1,8 +1,8 @@
 # FROM maven:3.8.5-openjdk-17 # for Java 17
 FROM maven:3.8.3-openjdk-17
 
-WORKDIR /ndfrais
-COPY src .
+WORKDIR /ndfraisback
+COPY . .
 RUN mvn clean install -DskipTests
 
 # Copier les ressources nécessaires dans un emplacement approprié
@@ -14,7 +14,7 @@ COPY src/main/resources/email-support-to-user.html /app/resources/email-support-
 COPY src/main/resources/email-empty.html /app/resources/email-empty.html
 
 
-LABEL name="ndfrais"
+LABEL name="ndfraisback"
 
 CMD mvn spring-boot:run
 

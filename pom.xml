@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.ol</groupId>
-	<artifactId>chronoshare</artifactId>
+	<artifactId>ndfraisback</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>chronoshare</name>
-	<description>chronoshare, outil de mesure du temps de travail</description>
+	<name>ndfraisback</name>
+	<description>ndfraisback, gestion des notes de frais</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -33,6 +33,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
