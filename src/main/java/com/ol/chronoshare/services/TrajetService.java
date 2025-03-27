@@ -24,11 +24,11 @@ public class TrajetService {
     @Autowired
     ConvertorService convertorService;
     public List<TrajetDTO> getAllDTOByUserAndYearMonth(User user, YearMonth yearMonth) {
-        return findAllTrajetByUserAndYearMonth(user, yearMonth)
+        return getAllByUserAndYearMonth(user, yearMonth)
                 .stream().map(convertorService::convertToTrajetDTO)
                 .toList();
     }
-    public List<Trajet> findAllTrajetByUserAndYearMonth(User user, YearMonth yearMonth) {
+    public List<Trajet> getAllByUserAndYearMonth(User user, YearMonth yearMonth) {
         return trajetRepository.findAllByUserIdAndYearMonth(user.getId(), yearMonth.getYear(), yearMonth.getMonthValue());
     }
     public void createTrajet(User user,TrajetDTO trajetDTO) {
@@ -49,7 +49,7 @@ public class TrajetService {
     }
     public void updateTrajet(User user,TrajetDTO trajetDTO) {
         Trajet trajet = getTrajetById(trajetDTO.getId());
-        if(trajet.getUser().getId().equals(user.getId())){
+        if(!trajet.getUser().getId().equals(user.getId())){
             throw new ChronoshareException("Vous n'avez pas les droits");
         }
         trajet.setDateTrajet(trajetDTO.getDateTrajet());

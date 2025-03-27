@@ -2,20 +2,29 @@ package com.ol.chronoshare.controllers;
 import com.ol.chronoshare.model.DTO.ChangementMotDePasseDTO;
 import com.ol.chronoshare.model.DTO.UserConnectedDTO;
 import com.ol.chronoshare.model.DTO.UserCreationDTO;
+import com.ol.chronoshare.model.Ticket;
+import com.ol.chronoshare.model.Trajet;
 import com.ol.chronoshare.model.User;
 import com.ol.chronoshare.services.JwtAuthentificationService;
+import com.ol.chronoshare.services.TicketService;
+import com.ol.chronoshare.services.TrajetService;
 import com.ol.chronoshare.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -27,8 +36,52 @@ public class UserController {
     @Autowired
     private UserService userService;
     @Autowired
+    private TrajetService trajetService;
+    @Autowired
+    private TicketService ticketService;
+    @Autowired
     JwtAuthentificationService jwtAuthentificationService;
 
+    @GetMapping("/get-excel/{monthStr}")
+    public ResponseEntity<Resource> getExcelRecap(@PathVariable String monthStr, HttpServletRequest request) throws Exception {
+        User user = userService.getUserFromCookie(request);
+        DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("MM-yyyy");
+        YearMonth yearMonth = YearMonth.parse(monthStr, formatterDate);
+        List<Ticket> ticketList = ticketService.getAllByUserAndYearMonth(user, yearMonth);
+        List<Trajet> trajetList = trajetService.getAllByUserAndYearMonth(user, yearMonth);
+
+        StringBuilder csvData = new StringBuilder("\uFEFF"); // Ajout du BOM UTF-8
+        csvData.append(monthStr).append("\n").append("\n");
+        csvData.append("Tickets").append("\n");
+        csvData.append("date;titre;montant;note;").append("\n");
+        for (Ticket ticket : ticketList) {
+            csvData.append(ticket.getDateTicket())
+                    .append(";").append(ticket.getTitre())
+                    .append(";").append(ticket.getMontant())
+                    .append(";").append(ticket.getNotes()).append("\n");
+
+        }
+
+        csvData.append("\n");
+        csvData.append("Trajets").append("\n");
+        csvData.append("date;titre;distance (en km);départ;arrivée").append("\n");
+        for (Trajet trajet : trajetList) {
+            csvData.append(trajet.getDateTrajet())
+                    .append(";").append(trajet.getTitre())
+                    .append(";").append(trajet.getNbkm())
+                    .append(";").append(trajet.getDisplayedDepart())
+                    .append(";").append(trajet.getDisplayedArrive()).append("\n");
+
+        }
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(csvData.toString().getBytes(StandardCharsets.UTF_8));
+        InputStreamResource resource = new InputStreamResource(inputStream);
+        String fileName = "ndfrais.pro.csv";
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,   "attachment; filename=\"" + fileName + "\"")
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .body(resource);
+    }
 
     @GetMapping("/verifAuthenticate")
     public ResponseEntity<UserConnectedDTO> verifAuthenticate(HttpServletRequest request) throws Exception {
