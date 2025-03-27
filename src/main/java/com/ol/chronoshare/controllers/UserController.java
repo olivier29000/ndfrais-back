@@ -1,14 +1,12 @@
 package com.ol.chronoshare.controllers;
 import com.ol.chronoshare.model.DTO.ChangementMotDePasseDTO;
+import com.ol.chronoshare.model.DTO.EmailSupportDTO;
 import com.ol.chronoshare.model.DTO.UserConnectedDTO;
 import com.ol.chronoshare.model.DTO.UserCreationDTO;
 import com.ol.chronoshare.model.Ticket;
 import com.ol.chronoshare.model.Trajet;
 import com.ol.chronoshare.model.User;
-import com.ol.chronoshare.services.JwtAuthentificationService;
-import com.ol.chronoshare.services.TicketService;
-import com.ol.chronoshare.services.TrajetService;
-import com.ol.chronoshare.services.UserService;
+import com.ol.chronoshare.services.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +37,8 @@ public class UserController {
     private TrajetService trajetService;
     @Autowired
     private TicketService ticketService;
+    @Autowired
+    private EmailService emailService;
     @Autowired
     JwtAuthentificationService jwtAuthentificationService;
 
@@ -127,5 +127,12 @@ public class UserController {
         }else{
             return new RedirectView(redirectUrl);
         }
+    }
+
+    @PostMapping("/email")
+    public void emailSupport(@RequestBody EmailSupportDTO emailSupportDTO, HttpServletRequest request) throws Exception {
+        UserConnectedDTO userConnected = userService.getUserConnectedDTO(request);
+        emailService.sendEmailSupportToAdmin(userConnected.getEmail(), emailSupportDTO);
+        emailService.sendEmailSupportToUser(userConnected.getEmail());
     }
 }
