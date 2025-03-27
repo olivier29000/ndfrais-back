@@ -105,7 +105,7 @@ public class EmailService {
 
         helper.setTo(email);
         helper.setSubject("Merci de votre contribution");
-        helper.setFrom(emailAlaisedeiz);
+        helper.setFrom(emailAdmin);
 
         // Charger le template HTML
         String htmlContent = new String(Files.readAllBytes(Paths.get(pathResource + "resources/email-support-to-user.html")));
