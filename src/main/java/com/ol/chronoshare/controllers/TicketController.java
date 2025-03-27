@@ -40,10 +40,14 @@ public class TicketController {
     private TicketService ticketService;
 
 
-    @GetMapping("/delete-by-id/{audioId}")
-    public List<ImageDTO> deleteAudioById(@PathVariable Integer imageId, HttpServletRequest request) throws Exception {
+    @GetMapping("/delete-by-id/{ticketId}/{monthStr}")
+    public List<TicketDTO> deleteTicketById(@PathVariable Integer ticketId,
+                                           @PathVariable String monthStr,HttpServletRequest request) throws Exception {
         User user = userService.getUserFromCookie(request);
-        return imageService.deleteImageById(imageId, user);
+        ticketService.deleteById(ticketId, user);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-yyyy");
+        YearMonth yearMonth = YearMonth.parse(monthStr, formatter);
+        return ticketService.getAllDTOByUserAndYearMonth(user, yearMonth);
 
     }
     @PostMapping("/upload-image")

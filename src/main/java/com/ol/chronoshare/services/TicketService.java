@@ -3,12 +3,14 @@ package com.ol.chronoshare.services;
 import com.ol.chronoshare.model.DTO.TicketDTO;
 import com.ol.chronoshare.model.Image;
 import com.ol.chronoshare.model.Ticket;
+import com.ol.chronoshare.model.Trajet;
 import com.ol.chronoshare.model.User;
 import com.ol.chronoshare.model.exceptions.ChronoshareException;
 import com.ol.chronoshare.repositories.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +22,8 @@ public class TicketService {
     TicketRepository ticketRepository;
     @Autowired
     ConvertorService convertorService;
+    @Autowired
+    ImageService imageService;
 
     public TicketDTO createTicket(Image image, User user) {
         Ticket ticket = ticketRepository.save(new Ticket(
@@ -27,6 +31,17 @@ public class TicketService {
                 user
         ));
         return convertorService.convertToTicketDTO(ticket);
+    }
+
+    public void deleteById(Integer id, User user) throws IOException {
+        Ticket ticket = findById(id);
+        if(!ticket.getUser().getId().equals(user.getId())){
+            throw new ChronoshareException("Vous n'avez pas les droits");
+        }
+        imageService.deleteFile(ticket.getImage().getPath());
+        ticket.setUser(null);
+        ticket.setImage(null);
+        ticketRepository.delete(ticket);
     }
 
     public List<TicketDTO> getAllDTOByUserAndYearMonth(User user, YearMonth yearMonth){

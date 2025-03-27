@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -50,6 +51,21 @@ public class ImageService {
         return fileName; // Retourne le nom du fichier pour le stocker dans la base
     }
 
+    public boolean deleteFile(String fileName) throws IOException {
+        if (fileName == null || fileName.isBlank()) {
+            throw new IllegalArgumentException("File name is null or empty!");
+        }
+
+        Path filePath = Paths.get(uploadDir + "/images").resolve(fileName);
+
+        // Vérifie si le fichier existe avant de tenter de le supprimer
+        if (Files.exists(filePath)) {
+            return Files.deleteIfExists(filePath);
+        } else {
+            throw new FileNotFoundException("File not found: " + filePath);
+        }
+    }
+
     public List<ImageDTO> getAllByUser(User user) throws IOException {
         List<Image> images = imageRepository.findAllByUser(user);
         List<ImageDTO> imageDTOList = new ArrayList<>();
@@ -64,6 +80,7 @@ public class ImageService {
         if (!image.getUser().equals(user)) {
             throw new Exception("Unauthorized access");
         }
+        deleteFile(image.getPath());
         imageRepository.delete(image);
         return getAllByUser(user);
     }

@@ -66,7 +66,7 @@ public class TrajetService {
 
     public void deleteById(Integer id, User user){
         Trajet trajet = getTrajetById(id);
-        if(trajet.getUser().getId().equals(user.getId())){
+        if(!trajet.getUser().getId().equals(user.getId())){
             throw new ChronoshareException("Vous n'avez pas les droits");
         }
         trajet.setUser(null);
