@@ -54,6 +54,7 @@ public class SecurityConfiguration {
                         .requestMatchers(new AntPathRequestMatcher("/back/user/confirm-email/*")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/back/user/oubli-mot-de-passe/*")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/back/user/changement-mot-de-passe")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
 
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(jwtAuthenticationEntryPoint))
