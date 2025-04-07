@@ -7,6 +7,7 @@ import com.ol.chronoshare.model.Ticket;
 import com.ol.chronoshare.model.User;
 import com.ol.chronoshare.model.exceptions.ChronoshareException;
 import com.ol.chronoshare.repositories.ImageRepository;
+import com.ol.chronoshare.services.GeminiService;
 import com.ol.chronoshare.services.ImageService;
 import com.ol.chronoshare.services.TicketService;
 import com.ol.chronoshare.services.UserService;
@@ -34,6 +35,8 @@ public class TicketController {
     UserService userService;
     @Autowired
     ImageService imageService;
+    @Autowired
+    GeminiService geminiService;
     @Autowired
     ImageRepository imageRepository;
     @Autowired
@@ -63,7 +66,7 @@ public class TicketController {
                 file.getSize(),
                 user);
         Image savedImage = imageRepository.save(image);
-        return ticketService.createTicket(savedImage, user);
+        return ticketService.createTicket(savedImage, user, geminiService.analyzeReceipt(file));
     }
 
     @GetMapping("/get-all-by-year-month/{monthStr}")

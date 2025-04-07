@@ -1,5 +1,6 @@
 package com.ol.chronoshare.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ol.chronoshare.model.DTO.TicketDTO;
 import com.ol.chronoshare.model.Image;
 import com.ol.chronoshare.model.Ticket;
@@ -25,12 +26,28 @@ public class TicketService {
     @Autowired
     ImageService imageService;
 
-    public TicketDTO createTicket(Image image, User user) {
+    public TicketDTO createTicket(Image image, User user, String geminiData) {
         Ticket ticket = ticketRepository.save(new Ticket(
                 image,
                 user
         ));
+        TicketDTO ticketDTO = parseGeminiJson(geminiData.replace("```json", "")
+                .replace("```", "")
+                .trim());
+        ticket.setMontant(ticketDTO.getMontant());
+        ticket.setTitre(ticketDTO.getTitre());
+        ticket = ticketRepository.save(ticket);
         return convertorService.convertToTicketDTO(ticket);
+    }
+
+    public TicketDTO parseGeminiJson(String jsonText) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(jsonText, TicketDTO.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void deleteById(Integer id, User user) throws IOException {
