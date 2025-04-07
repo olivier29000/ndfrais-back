@@ -55,7 +55,12 @@ public class TicketService {
         if(!ticket.getUser().getId().equals(user.getId())){
             throw new ChronoshareException("Vous n'avez pas les droits");
         }
-        imageService.deleteFile(ticket.getImage().getPath());
+        try {
+            imageService.deleteFile(ticket.getImage().getPath());
+        }catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
         ticket.setUser(null);
         ticket.setImage(null);
         ticketRepository.delete(ticket);
