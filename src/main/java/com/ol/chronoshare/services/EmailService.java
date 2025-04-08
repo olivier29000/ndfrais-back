@@ -37,14 +37,14 @@ public class EmailService {
         helper.setFrom("contact@narratrice.fr");
 
         // Charger le template HTML
-        String htmlContent = new String(Files.readAllBytes(Paths.get("/app/resources/email-changement-mot-de-passe.html")));
+        String htmlContent = new String(Files.readAllBytes(Paths.get(pathResource +  "resources/email-changement-mot-de-passe.html")));
         String urlChangementMotDePasse = URL + "changement-mot-de-passe/" + tokenModifMotDePasse.getToken();
         // Remplacer le placeholder par l'URL de confirmation
         htmlContent = htmlContent.replace("${urlChangementMotDePasse}", urlChangementMotDePasse);
         helper.setText(htmlContent, true);
 
         // Ajouter une image inline
-        FileSystemResource logoImage = new FileSystemResource("/app/resources/images/logo.png");
+        FileSystemResource logoImage = new FileSystemResource(pathResource +  "resources/images/logo.png");
         helper.addInline("logoImage", logoImage);
 
         javaMailSender.send(message);
