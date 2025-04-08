@@ -6,7 +6,7 @@ COPY . .
 RUN mvn clean install -DskipTests
 
 # Copier les ressources nécessaires dans un emplacement approprié
-RUN mkdir -p /app/resources
+RUN mkdir -p /ndfrais/images/resources
 COPY src/main/resources/images/logo.png /ndfrais/images/resources/images/logo.png
 COPY src/main/resources/email-support-to-admin.html /ndfrais/images/resources/email-support-to-admin.html
 COPY src/main/resources/email-inscription.html /ndfrais/images/resources/email-inscription.html
